@@ -1,0 +1,210 @@
+﻿@using DnTech_ECommerce.ViewModels
+@model LogIn_ViewModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "_Layout";
+}
+
+<div class="auth-container">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg">
+                    <div class="row g-0">
+                        <!-- Imagen lateral con color (IZQUIERDA) -->
+                        <div class="col-lg-6 d-none d-lg-block">
+                            <div class="auth-image h-100">
+                                <div class="text-center p-5">
+                                    <i class="bi bi-lock-fill display-1 mb-4"></i>
+                                    <h3 class="fw-bold mb-3">Bienvenido de Nuevo</h3>
+                                    <p>Accede a tu cuenta para ver tus pedidos, favoritos y configuraciones.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulario (DERECHA) -->
+                        <div class="col-lg-6">
+                            <div class="card-body p-5">
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold">Iniciar Sesión</h2>
+                                    <p class="text-muted">Ingresa tus credenciales para continuar</p>
+                                </div>
+
+                                <form asp-controller="Account" asp-action="Login" method="post">
+                                    <div class="mb-4">
+                                        <label asp-for="Email" class="form-label fw-semibold">Correo Electrónico</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-envelope"></i>
+                                            </span>
+                                            <input asp-for="Email"
+                                                   class="form-control"
+                                                   id="email"
+                                                   placeholder="correo@ejemplo.com"
+                                                   required>
+                                            <div class="invalid-feedback">
+                                                Por favor ingresa un correo válido.
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label asp-for="Password" class="form-label fw-semibold">Contraseña</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="bi bi-lock"></i>
+                                            </span>
+                                            <input asp-for="Password"
+                                                   class="form-control"
+                                                   id="password"
+                                                   placeholder="Ingresa tu contraseña"
+                                                   required>
+                                            <button class="input-group-text toggle-password" type="button">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <div class="invalid-feedback">
+                                                Por favor ingresa tu contraseña.
+                                            </div>
+                                        </div>
+                                        <div class="text-end mt-2">
+                                            <a href="#" class="text-decoration-none text-primary">¿Olvidaste tu contraseña?</a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4 form-check">
+                                        <input asp-for="RememberMe" type="checkbox" class="form-check-input" id="remember">
+                                        <label asp-for="RememberMe" class="form-check-label" for="remember">Recordarme</label>
+                                    </div>
+
+                                    <div class="d-grid mb-4">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                                        </button>
+                                    </div>
+
+                                    <div class="divider">
+                                        <span>O continúa con</span>
+                                    </div>
+
+                                    <div class="row g-2 mb-4">
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-dark w-100">
+                                                <i class="bi bi-google me-2"></i>Google
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn btn-outline-primary w-100">
+                                                <i class="bi bi-facebook me-2"></i>Facebook
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <p class="mb-0">
+                                            ¿No tienes una cuenta?
+                                            <a asp-controller="Account" asp-action="Register" class="text-decoration-none fw-semibold text-primary">Regístrate</a>
+                                        </p>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@* 
+
+@{
+    ViewData["Title"] = "Iniciar Sesion";
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-user-circle"></i>
+            <h2>Iniciar Sesión</h2>
+            <p class="mb-0">Bienvenido de nuevo</p>
+        </div>
+
+        <div class="login-body">
+            <form asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" class="form-control" name="Email" placeholder="usuario@ejemplo.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" name="Password" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="RememberMe">
+                    <label class="form-check-label" for="rememberMe">
+                        Recordarme
+                    </label>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-login">
+                        <i class="fas fa-sign-in-alt me-2"></i>Ingresar
+                    </button>
+                </div>
+
+                <div class="text-center mb-3">
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+            </form>
+
+            <div class="divider">
+                <span>O continúa con</span>
+            </div>
+
+            <div class="social-login">
+                <button class="btn-social">
+                    <i class="fab fa-google" style="color: #DB4437;"></i>
+                </button>
+                <button class="btn-social">
+                    <i class="fab fa-facebook" style="color: #4267B2;"></i>
+                </button>
+                <button class="btn-social">
+                    <i class="fab fa-microsoft" style="color: #00A4EF;"></i>
+                </button>
+            </div>
+
+            <div class="register-link">
+                ¿No tienes cuenta? <a href="#">Regístrate aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+ *@
