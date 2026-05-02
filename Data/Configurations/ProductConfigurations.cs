@@ -69,7 +69,7 @@ namespace DnTech_Ecommerce.Data.Configurations
             // Datos iniciales (Seed Data) - USAR VALORES ESTÁTICOS
             var seedDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            builder.HasData(
+            _ = builder.HasData(
                 new Product
                 {
                     Id = 1,

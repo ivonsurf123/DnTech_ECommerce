@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -7,7 +8,7 @@
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/IndexStyle.css" asp-append-version="true" />
+
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
@@ -40,15 +41,59 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Contacto</a>
-                        </li>
+                        </li>                      
                     </ul>
 
                     <!-- Elementos derecha - usuario logueado -->
                     <div class="d-flex align-items-center ms-auto">
-                        <a href="#" class="nav-link me-3">
+
+                        <a asp-controller="Cart" asp-action="Index" class="nav-link me-3 position-relative">
                             <i class="bi bi-cart3 fs-5"></i>
-                            <span class="badge bg-danger rounded-pill">3</span>
+                            <span class="badge bg-danger rounded-pill position-absolute"
+                                  style="top: -8px; right: -5px; font-size: 0.7rem;" id="cartBadge">
+                                <!-- Se actualizará via JavaScript -->
+                                @ViewBag.CartCount
+                            </span>
                         </a>
+
+                        <!-- Icono de Notificaciones -->
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link position-relative" href="#" id="notificationsDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell fs-5"></i>
+                                <!-- Badge con contador (oculto si es 0) -->
+                                <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                                    0
+                                </span>
+                            </a>
+
+                            <!-- Dropdown de notificaciones -->
+                            <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown" style="width: 350px; max-height: 500px;">
+                                <!-- Header -->
+                                <div class="dropdown-header d-flex justify-content-between align-items-center border-bottom pb-2">
+                                    <h6 class="mb-0 fw-bold">Notificaciones</h6>
+                                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" id="markAllAsRead">
+                                        <small>Marcar todas como leídas</small>
+                                    </button>
+                                </div>
+
+                                <!-- Lista de notificaciones -->
+                                <div id="notificationsList" class="notification-list" style="max-height: 400px; overflow-y: auto;">
+                                    <!-- Las notificaciones se cargarán aquí vía JavaScript -->
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                                        <small>No tienes notificaciones</small>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="dropdown-footer border-top pt-2">
+                                    <a href="/Notifications" class="dropdown-item text-center small text-primary">
+                                        Ver todas las notificaciones
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
 
                         <!-- Menú desplegable del usuario -->
                         <div class="dropdown">
@@ -57,9 +102,14 @@
                                 @User.Identity.Name
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-speedometer2 me-2"></i>Panel Admin</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                }
                                 <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-bag me-2"></i>Mis Pedidos</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-heart me-2"></i>Favoritos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index"><i class="bi bi-bag me-2"></i>Mis Pedidos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Favorites" asp-action="Index"><i class="bi bi-heart me-2"></i>Favoritos</a><span class="badge badge-pill badge-danger" id="favorites-count">0</span></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
@@ -151,9 +201,12 @@
     </footer>
 
     <!-- Scripts -->
+  @*   <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
+    <!-- SignalR Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
     <script>
         // Script para mostrar/ocultar contraseña
         document.addEventListener('DOMContentLoaded', function() {
@@ -183,119 +236,323 @@
                 });
             });
         });
+
+
+        // Actualizar contador del carrito al cargar la página
+
+         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado, ejecutando updateCartBadge...'); // DEBUG
+            updateCartBadge();
+        }); 
+
+        // Función para actualizar el contador del carrito
+        function updateCartBadge() {
+            console.log('Llamando a /Cart/GetCartCount...'); // DEBUG
+            fetch('/Cart/GetCartCount')
+                .then(response => {
+                    console.log('Response status:', response.status); // DEBUG
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data recibida:', data); // DEBUG
+                    const cartBadge = document.getElementById('cartBadge');
+
+                    if (cartBadge) {
+                        if (data.count > 0) {
+                            cartBadge.textContent = data.count;
+                            cartBadge.style.display = 'block';
+                        } else {
+                            cartBadge.style.display = 'none';
+                        }
+                        console.log('Badge actualizado correctamente'); // DEBUG
+                    } else {
+                        console.error('No se encontró el elemento #cartBadge'); // DEBUG
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener contador del carrito:', error);
+                });
+        }
+
+
+        // Update favorites count in navbar
+        function updateFavoritesCount() {
+            $.ajax({
+                url: '@Url.Action("GetCount", "Favorites")',
+                type: 'GET',
+                success: function(response) {
+                    var badge = $('#favorites-count');
+                    badge.text(response.count);
+
+                    if (response.count > 0) {
+                        badge.show();
+                    } else {
+                        badge.hide();
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // CONFIGURACIÓN DE SIGNALR Y NOTIFICACIONES
+        // ============================================
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+                <text>
+                let notificationConnection = null;
+
+                // Conectar a SignalR Hub
+                async function connectNotificationHub() {
+                    try {
+                        notificationConnection = new signalR.HubConnectionBuilder()
+                            .withUrl("/notificationHub")
+                            .withAutomaticReconnect()
+                            .build();
+
+                        // Evento: Recibir notificación
+                        notificationConnection.on("ReceiveNotification", function(notification) {
+                            console.log("Nueva notificación recibida:", notification);
+
+                            // Actualizar badge
+                            updateNotificationBadge();
+
+                            // Añadir a la lista
+                            addNotificationToList(notification);
+
+                            // Animación de campana
+                            const bellIcon = document.querySelector('#notificationsDropdown i');
+                            if (bellIcon) {
+                                bellIcon.classList.add('bell-ring');
+                                setTimeout(() => bellIcon.classList.remove('bell-ring'), 500);
+                            }
+
+                            // Toast opcional
+                            if (typeof showNotification === 'function') {
+                                showNotification(notification.message, 'info');
+                            }
+                        });
+
+                        // Conectar
+                        await notificationConnection.start();
+                        console.log("SignalR connected");
+
+                        // Cargar notificaciones iniciales
+                        await loadNotifications();
+
+                    } catch (err) {
+                        console.error("SignalR connection error:", err);
+                        setTimeout(connectNotificationHub, 5000); // Reintentar en 5s
+                    }
+                }
+
+                // Cargar notificaciones
+                async function loadNotifications() {
+                    try {
+                        const response = await fetch('/Notifications/GetRecent?count=10');
+                        const notifications = await response.json();
+
+                        const listContainer = document.getElementById('notificationsList');
+                        if (!notifications || notifications.length === 0) {
+                            listContainer.innerHTML = `
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                                    <small>No tienes notificaciones</small>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        listContainer.innerHTML = '';
+                        notifications.forEach(n => addNotificationToList(n, false));
+
+                        // Actualizar badge
+                        updateNotificationBadge();
+
+                    } catch (err) {
+                        console.error("Error loading notifications:", err);
+                    }
+                }
+
+                // Agregar notificación a la lista
+                function addNotificationToList(notification, prepend = true) {
+                    const listContainer = document.getElementById('notificationsList');
+
+                    // Si está vacío, limpiar mensaje de "no hay notificaciones"
+                    if (listContainer.querySelector('.text-muted')) {
+                        listContainer.innerHTML = '';
+                    }
+
+                    const icon = getNotificationIcon(notification.type);
+                    const notifHtml = `
+                        <a href="${notification.link || '#'}"
+                        class="notification-item ${notification.isRead ? '' : 'unread'}"
+                        data-id="${notification.id}"
+                        onclick="markNotificationAsRead(${notification.id})">
+                            <div class="notification-content">
+                                <div class="notification-icon ${icon.class}">
+                                    <i class="bi ${icon.icon}"></i>
+                                </div>
+                                <div class="notification-text">
+                                    <p class="notification-message">${notification.message}</p>
+                                    <small class="notification-time">${notification.createdAt}</small>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+
+                    if (prepend) {
+                        listContainer.insertAdjacentHTML('afterbegin', notifHtml);
+                    } else {
+                        listContainer.insertAdjacentHTML('beforeend', notifHtml);
+                    }
+                }
+
+                // Obtener icono según tipo
+                function getNotificationIcon(type) {
+                    const icons = {
+                        'NewOrder': { icon: 'bi-cart-check', class: 'new-order' },
+                        'OrderStatusChange': { icon: 'bi-arrow-repeat', class: 'order-status' },
+                        'OrderShipped': { icon: 'bi-truck', class: 'order-shipped' },
+                        'OrderDelivered': { icon: 'bi-house-check', class: 'order-delivered' },
+                        'OrderCancelled': { icon: 'bi-x-circle', class: 'order-cancelled' },
+                        'PaymentConfirmed': { icon: 'bi-check-circle', class: 'payment' },
+                        'System': { icon: 'bi-info-circle', class: 'system' }
+                    };
+                    return icons[type] || { icon: 'bi-bell', class: 'system' };
+                }
+
+                // Actualizar badge de contador
+                async function updateNotificationBadge() {
+                    try {
+                        const response = await fetch('/Notifications/GetUnreadCount');
+                        const data = await response.json();
+
+                        const badge = document.getElementById('notificationBadge');
+                        if (data.count > 0) {
+                            badge.textContent = data.count > 99 ? '99+' : data.count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    } catch (err) {
+                        console.error("Error updating badge:", err);
+                    }
+                }
+
+                // Marcar notificación como leída
+                async function markNotificationAsRead(notificationId) {
+                    try {
+                        await fetch('/Notifications/MarkAsRead', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            },
+                            body: JSON.stringify({ id: notificationId })
+                        });
+
+                        // Actualizar UI
+                        const notifElement = document.querySelector([data-id="${notificationId}"]);
+                        if (notifElement) {
+                            notifElement.classList.remove('unread');
+                        }
+
+                        updateNotificationBadge();
+
+                    } catch (err) {
+                        console.error("Error marking as read:", err);
+                    }
+                }
+
+                // Marcar todas como leídas
+                document.getElementById('markAllAsRead')?.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    try {
+                        await fetch('/Notifications/MarkAllAsRead', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            }
+                        });
+
+                        // Actualizar UI - marcar todas como leídas
+                        document.querySelectorAll('.notification-item.unread').forEach(item => {
+                            item.classList.remove('unread');
+                        });
+
+                        updateNotificationBadge();
+
+                        // Opcional: mostrar mensaje de éxito
+                        if (typeof showNotification === 'function') {
+                            showNotification('Todas las notificaciones marcadas como leídas', 'success');
+                        }
+
+                    } catch (err) {
+                        console.error("Error marking all as read:", err);
+                    }
+                });
+
+                // Verificar nuevas notificaciones cada 30 segundos (fallback si SignalR falla)
+                let pollInterval = setInterval(async () => {
+                    if (!notificationConnection || notificationConnection.state !== signalR.HubConnectionState.Connected) {
+                        await updateNotificationBadge();
+                    }
+                }, 30000);
+
+                // Manejar cierre/desconexión de la ventana
+                window.addEventListener('beforeunload', function() {
+                    if (pollInterval) {
+                        clearInterval(pollInterval);
+                    }
+                    if (notificationConnection) {
+                        notificationConnection.stop();
+                    }
+                });
+
+                // Inicializar todo cuando el DOM esté listo
+                document.addEventListener('DOMContentLoaded', function() {
+                    connectNotificationHub();
+
+                    // Cargar notificaciones al abrir el dropdown
+                    const dropdownToggle = document.querySelector('#notificationsDropdown');
+                    if (dropdownToggle) {
+                        dropdownToggle.addEventListener('click', function() {
+                            loadNotifications();
+                        });
+                    }
+                });
+
+                </text>
+        }
+        else
+        {
+                <text>
+                // Usuario no autenticado - limpiar cualquier notificación visible
+                document.addEventListener('DOMContentLoaded', function() {
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) badge.style.display = 'none';
+
+                    const listContainer = document.getElementById('notificationsList');
+                    if (listContainer) {
+                        listContainer.innerHTML = `
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-box-arrow-right fs-3 d-block mb-2"></i>
+                                <small>Inicia sesión para ver notificaciones</small>
+                            </div>
+                        `;
+                    }
+                });
+                </text>
+        }
+            
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 
-
-
-@* 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DnTech_ECommerce</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/DnTech_ECommerce.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/IndexStyle.css" asp-append-version="true" />
-
-</head>
-<body>
-    <header>
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg sticky-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    <i class="fas fa-shopping-bag"></i> TechStore
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#productos">Productos</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#ofertas">Ofertas</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-                    </ul>
-                    <div class="d-flex align-items-center">
-                        <div class="cart-icon me-3">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="cart-badge">3</span>
-                        </div>
-                        <button class="btn btn-login">
-                            <i class="fas fa-user"></i> Ingresar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h4 class="footer-title">
-                        <i class="fas fa-shopping-bag"></i> TechStore
-                    </h4>
-                    <p>Tu tienda de confianza para tecnología de última generación.</p>
-                    <div class="social-icons mt-3">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h5 class="footer-title">Productos</h5>
-                    <a href="#" class="footer-link">Laptops</a>
-                    <a href="#" class="footer-link">Smartphones</a>
-                    <a href="#" class="footer-link">Accesorios</a>
-                    <a href="#" class="footer-link">Gaming</a>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h5 class="footer-title">Empresa</h5>
-                    <a href="#" class="footer-link">Sobre Nosotros</a>
-                    <a href="#" class="footer-link">Careers</a>
-                    <a href="#" class="footer-link">Blog</a>
-                    <a href="#" class="footer-link">Prensa</a>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h5 class="footer-title">Soporte</h5>
-                    <a href="#" class="footer-link">FAQ</a>
-                    <a href="#" class="footer-link">Contacto</a>
-                    <a href="#" class="footer-link">Envíos</a>
-                    <a href="#" class="footer-link">Devoluciones</a>
-                </div>
-                <div class="col-md-2 mb-4">
-                    <h5 class="footer-title">Legal</h5>
-                    <a href="#" class="footer-link">Privacidad</a>
-                    <a href="#" class="footer-link">Términos</a>
-                    <a href="#" class="footer-link">Cookies</a>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2024 TechStore. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
- *@

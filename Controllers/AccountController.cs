@@ -3,6 +3,7 @@ using DnTech_ECommerce.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static System.Collections.Specialized.BitVector32;
 
 
 namespace DnTech_ECommerce.Controllers
@@ -37,15 +38,26 @@ namespace DnTech_ECommerce.Controllers
 
             if (ModelState.IsValid)
             {
-                // Identity usa Email como UserName por defecto
+                // Ensure model.Email and model.Password are not null before passing to PasswordSignInAsync
+                var email = model.Email ?? string.Empty;
+                var password = model.Password ?? string.Empty;
+
                 var result = await _signInManager.PasswordSignInAsync(
-                    model.Email,
-                    model.Password,
+                    email,
+                    password,
                     model.RememberMe,
                     lockoutOnFailure: true);
 
                 if (result.Succeeded)
                 {
+                    // Obtener usuario y refrescar claims de roles
+                    var user = await _userManager.FindByEmailAsync(email);
+                    if (user != null)
+                    {
+                        await _signInManager.SignOutAsync();
+                        await _signInManager.SignInAsync(user, isPersistent: model.RememberMe);
+                    }
+
                     return RedirectToLocal(returnUrl);
                 }
                 if (result.IsLockedOut)
@@ -62,7 +74,7 @@ namespace DnTech_ECommerce.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Administrator")]
+
         public IActionResult Register()
         {
             ViewBag.Roles = _roleManager.Roles.ToList();          
@@ -70,7 +82,7 @@ namespace DnTech_ECommerce.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Administrator")]
+
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(Register_ViewModel model)
@@ -123,6 +135,7 @@ namespace DnTech_ECommerce.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
@@ -148,6 +161,7 @@ namespace DnTech_ECommerce.Controllers
 
         // GET: /Account/Profile
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -160,8 +174,8 @@ namespace DnTech_ECommerce.Controllers
             var model = new ProfileViewModel
             {
                 Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
+                FullName = user.FullName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
                 PhoneNumber = user.PhoneNumber,
                 Address = user.Address ?? string.Empty,
                 City = user.City,
@@ -175,6 +189,7 @@ namespace DnTech_ECommerce.Controllers
         // POST: /Account/Profile
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Profile(ProfileViewModel model)
         {
             if (!ModelState.IsValid)

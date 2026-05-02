@@ -1,7 +1,7 @@
 /* Reset y configuración básica */
 :root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
     --accent-color: #f72585;
     --light-color: #f8f9fa;
     --dark-color: #212529;
@@ -19,9 +19,7 @@ html, body {
 }
 
 body {
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	overflow-x: hidden;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -39,18 +37,15 @@ body {
 .navbar-brand {
     font-weight: 700;
     font-size: 1.8rem;
-    background: var(--primary-gradient);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;									 
     background-clip: text;
     color: transparent;
 }
 
 .nav-link {
-	color: #333;
     font-weight: 500;
-    margin: 0 10px;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
 }
 
     .nav-link:hover {
@@ -74,28 +69,21 @@ body {
 .btn-outline-primary {
     border: 2px solid var(--primary-color);
     color: var(--primary-color);
-	 border-radius: 10px;
-    padding: 8px 20px;
     font-weight: 600;
-    transition: all 0.3s;
+    padding: 10px 25px;
 }
 
     .btn-outline-primary:hover {
         background-color: var(--primary-color);
         color: white;
-        border-color: transparent;
-        transform: translateY(-2px); 				 									
     }
 
 /* Hero section */
 .hero-section {
-   
-	
-	background: var(--primary-gradient);
-    color: white;
-    padding: 100px 0;
-    position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%);
+    border-radius: 20px;
+    padding: 60px 0;
+    margin: 40px 0;
 }
 
 /* ICONOS CIRCULARES - ESTOS SON LOS QUE NECESITAS */
@@ -245,29 +233,23 @@ footer {
         footer a:hover {
             color: var(--primary-color) !important;
         }
-		
-		
-.social-icons a {
-    color: white;
-    font-size: 28px;
-	display: inline-flex;
-	align-items: center;
+
+.social-icon {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-	background: rgba(255, 255, 255, 0.1);
-    margin-right: 15px;
-    transition: all 0.3s;
+    background: rgba(255, 255, 255, 0.1);
+    margin-right: 10px;
+    transition: all 0.3s ease;
 }
 
-    .social-icons a:hover {
-        color: var(--primary-color);
+    .social-icon:hover {
+        background: var(--primary-color);
         transform: translateY(-3px);
     }
-		
-
-
 
 /* Páginas de autenticación */
 .auth-container {
@@ -370,6 +352,186 @@ hr.my-4 {
     border-color: #e9ecef;
 }
 
+/* Estilos para el carrito */
+.sticky-top {
+    position: -webkit-sticky;
+    position: sticky;
+    z-index: 1020;
+}
+
+.quantity-input {
+    -moz-appearance: textfield;
+}
+
+    .quantity-input::-webkit-outer-spin-button,
+    .quantity-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+/* Estilos para el badge del carrito en navbar */
+.navbar .badge.bg-danger {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/*Pedidos procesados*/
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+/*Detalle pedidos procesados*/
+.timeline {
+    position: relative;
+    padding-left: 50px;
+}
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+    .timeline-item.active {
+        opacity: 1;
+    }
+
+        .timeline-item.active .timeline-marker {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+        }
+
+    .timeline-item.cancelled .timeline-marker {
+        background: #dc3545;
+        color: white;
+    }
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.timeline-content {
+    padding-left: 15px;
+}
+
+/* Print styles */
+@media print {
+    .navbar, .breadcrumb, footer, .btn, .cancel-order, .sticky-top {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+}
+
+
+
+
+
+/* Animación para agregar al carrito */
+@keyframes addToCart {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.add-to-cart:active {
+    animation: addToCart 0.3s ease;
+}
+
+/* Responsive para el carrito */
+@media (max-width: 768px) {
+    .card-body .row > div {
+        margin-bottom: 1rem;
+    }
+
+    .quantity-input {
+        max-width: 80px;
+    }
+}
+
+    /* Estilos para el checkout */
+    .payment-method-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .payment-method-option:hover {
+        background-color: #f8f9fa !important;
+        border-color: #0d6efd !important;
+    }
+
+    .payment-method-option .form-check-input:checked ~ .form-check-label {
+        color: #0d6efd;
+    }
+
+    .success-animation i {
+        animation: successPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes successPulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    /* Estilos para impresión */
+    @media print {
+        .navbar, footer, .btn, .sticky-top {
+            display: none !important;
+        }
+
+        .card {
+            border: 1px solid #dee2e6 !important;
+            box-shadow: none !important;
+        }
+    }
+
+
 /* Responsive */
 @media (max-width: 768px) {
     body {
@@ -411,57 +573,272 @@ hr.my-4 {
 }
 
 
-.toggle-password {
-    cursor: pointer;
-    border: none;
-    background: transparent;
+/*Pedidos procesados*/
+.hover-shadow {
+    transition: all 0.3s ease;
 }
 
-    .toggle-password:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
     }
 
-
-
-/*html {
-  font-size: 14px;
+/*Detalle pedidos procesados*/
+.timeline {
+    position: relative;
+    padding-left: 50px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+    opacity: 0.5;
+    transition: all 0.3s ease;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    .timeline-item.active {
+        opacity: 1;
+    }
+
+        .timeline-item.active .timeline-marker {
+            background: #0d6efd;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+        }
+
+    .timeline-item.cancelled .timeline-marker {
+        background: #dc3545;
+        color: white;
+    }
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.timeline-content {
+    padding-left: 15px;
+}
+
+/* Print styles */
+@media print {
+    .navbar, .breadcrumb, footer, .btn, .cancel-order, .sticky-top {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+}
+
+
+
+/* Reset y configuración básica WORKING*/
+/*:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #f72585;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 76px;
+    color: var(--dark-color);
+}*/
+
+/* Main content debe crecer */
+/*.main-content {
+    flex: 1 0 auto;
+    width: 100%;
+}*/
+
+/* Navegación */
+/*.navbar-brand {
+    font-weight: 700;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.nav-link {
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    .nav-link:hover {
+        color: var(--primary-color) !important;
+    }*/
 
-    .toggle-password {
-    cursor: pointer;
+/* Botones */
+/*.btn-primary {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
     border: none;
-    background: transparent;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-    .toggle-password:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
     }
 
+.btn-outline-primary {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 10px 25px;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }*/
+
+/* Hero section */
+/*.hero-section {
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%);
+    border-radius: 20px;
+    padding: 60px 0;
+    margin: 40px 0;
+}*/
+
+/* Cards */
+/*.card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }*/
+
+/* Formularios */
+/*.form-control {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }*/
+
+/* Footer */
+/*footer {
+    background-color: var(--dark-color) !important;
+    color: white !important;
+    flex-shrink: 0;
+}
+
+    footer a {
+        color: white !important;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        footer a:hover {
+            color: var(--primary-color) !important;
+        }
+
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+    .social-icon:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+    }*/
+
+/* Páginas de autenticación */
+/*.auth-container {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+.auth-card {
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.auth-image {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    border-radius: 20px 0 0 20px;
+    color: white;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}*/
+
+/* Responsive */
+/*@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+    }
+
+    .hero-section {
+        padding: 40px 20px;
+        margin: 20px 0;
+    }
+
+    .auth-image {
+        border-radius: 20px 20px 0 0;
+        padding: 30px;
+    }
 }*/

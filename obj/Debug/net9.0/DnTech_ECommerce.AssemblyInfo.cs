@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DnTech_ECommerce")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+baa8f145ead7b65b2c38b7e2aca3bf0551ef4d0d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4717eeedce2efe9a011f93f699ec45e283417f9f")]
 [assembly: System.Reflection.AssemblyProductAttribute("DnTech_ECommerce")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DnTech_ECommerce")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -20,7 +20,7 @@ namespace DnTech_Ecommerce.Models
         [Display(Name = "Slug (URL)")]
         public string? Slug { get; set; }
 
-        [Display(Name = "Imagen")]
+        [Display(Name = "Imagen Principal")]
         public string? ImageUrl { get; set; }
 
         [Display(Name = "Activa")]

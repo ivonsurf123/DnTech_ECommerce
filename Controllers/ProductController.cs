@@ -1,5 +1,4 @@
-﻿using DnTech_Ecommerce.Data;
-using DnTech_Ecommerce.ViewModels;
+﻿using DnTech_Ecommerce.ViewModels;
 using DnTech_ECommerce.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DnTech_Ecommerce.Controllers
 {
+    [Authorize]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;

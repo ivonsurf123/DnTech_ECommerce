@@ -1,0 +1,118 @@
+﻿@model IEnumerable<DnTech_ECommerce.Models.Favorite>
+
+@{
+    ViewData["Title"] = "Favoritos";
+    Layout = "_Layout";
+}
+
+<!-- IMPORTANTE: Agregar el token antiforgery -->
+<form method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<h2>Favoritos</h2>
+
+@if (Model.Any())
+{
+    <div class="favorites-list">
+        @foreach (var item in Model)
+        {
+            <div class="favorite-item">
+                <img src="@(item.Product?.MainImageUrl ?? "")" alt="@(item.Product?.Name ?? "Product")" />
+                <h3>@(item.Product?.Name ?? "Product")</h3>
+                <p>@(item.Product?.Price.ToString("C") ?? "")</p>
+                @* <button class="btn btn-primary" onclick="addToCart(@item.ProductId)">Add to Cart</button> *@
+                <button class="btn btn-primary add-to-cart" data-product-id="@item.ProductId">Agregar al carrito</button>
+                <button class="btn btn-danger" onclick="removeFromFavorites(@item.ProductId)">Remove</button>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>You don't have any favorites yet.</p>
+}
+
+
+@section Scripts {
+    <script>
+         // Obtener token antiforgery
+        function getToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]').value;
+        }
+
+              function addToFavorites(productId) {
+            $.ajax({
+                url: '@Url.Action("Add", "Favorites")',
+                type: 'POST',
+                data: { productId: productId },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        // Update UI - change heart icon, etc.
+                        $('#favorite-btn-' + productId).addClass('favorited');
+                    }
+                }
+            });
+        }
+
+        function removeFromFavorites(productId) {
+            $.ajax({
+                url: '@Url.Action("Remove", "Favorites")',
+                type: 'POST',
+                data: { productId: productId },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload(); // Or remove element from DOM
+                    }
+                }
+            });
+        }
+
+            // Agregar al carrito
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = parseInt(this.getAttribute('data-product-id'));
+
+                // Deshabilitar botón temporalmente
+                const originalText = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agregando...';
+
+                // Crear FormData
+                const formData = new FormData();
+                formData.append('ProductId', productId);
+                formData.append('Quantity', 1);
+                formData.append('__RequestVerificationToken', getToken());
+
+                fetch('@Url.Action("AddToCart", "Cart")', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        updateCartCount();
+                    } else {
+                        showNotification(data.message || 'Error al agregar el producto', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error de conexión. Intenta nuevamente.', 'error');
+                })
+                .finally(() => {
+                    // Restaurar botón
+                    this.disabled = false;
+                    this.innerHTML = originalText;
+                });
+            });
+        });
+    </script>
+}
